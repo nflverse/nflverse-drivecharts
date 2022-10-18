@@ -36,7 +36,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: local::., ropensci/piggyback
+          extra-packages: local::., ropensci/piggyback, any::purrr
 
       - name: Run update script
         run: Rscript -e 'source("auto/update_drivecharts.R")'
