@@ -24,4 +24,3 @@ icon_from_desc <- function(desc){
     TRUE ~ NA_character_
   )
 }
-icon_from_desc("FG")

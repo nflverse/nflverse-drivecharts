@@ -1,4 +1,6 @@
 ^nflverse-drivecharts\.Rproj$
 ^\.Rproj\.user$
 ^data-raw$
+^auto$
 ^LICENSE\.md$
+^\.github$
