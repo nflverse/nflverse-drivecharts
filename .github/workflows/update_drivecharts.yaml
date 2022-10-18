@@ -36,7 +36,15 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: local::., nflverse/nflverse-data
+          extra-packages: local::., ropensci/piggyback
 
       - name: Run update script
         run: Rscript -e 'source("auto/update_drivecharts.R")'
+
+      - name: Commit completed games
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add auto/saved_games.csv
+          git commit -m "drivecharts updated `date`" || echo "No changes to commit"
+          git push || echo "No changes to commit"
