@@ -11,6 +11,7 @@ Imports:
     cli (>= 3.4.1),
     collapse (>= 1.8.9),
     dplyr (>= 1.0.10),
+    ggforce (>= 0.4.1),
     ggrepel (>= 0.9.1),
     glue (>= 1.6.2),
     nflplotR (>= 1.1.0),
