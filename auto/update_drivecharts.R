@@ -1,12 +1,12 @@
 options(nflreadr.verbose = FALSE)
 
-save_new_games <- function(){
+save_new_games <- function(years = TRUE, release = TRUE){
   saved_games <- read.csv("auto/saved_games.csv")
 
   # data.frame(game_id = NA_character_) |>
   #   write.csv("auto/saved_games.csv", row.names = FALSE)
 
-  completed_games <- nflreadr::load_schedules() |>
+  completed_games <- nflreadr::load_schedules(seasons = years) |>
     dplyr::filter(!is.na(result)) |>
     dplyr::select(game_id)
 
@@ -21,7 +21,7 @@ save_new_games <- function(){
 
   cli::cli_alert_info("Going to create charts for {length(to_save)} game{?s} in {length(seasons)} season{?s}")
 
-  purrr::walk(seasons, save_season, ids_to_save = to_save)
+  purrr::walk(seasons, save_season, ids_to_save = to_save, release = release)
 
   new_saved_games <- dplyr::bind_rows(saved_games, data.frame(game_id = to_save)) |>
     dplyr::arrange(game_id)
@@ -29,7 +29,7 @@ save_new_games <- function(){
   write.csv(new_saved_games, "auto/saved_games.csv", row.names = FALSE)
 }
 
-save_season <- function(season, ids_to_save){
+save_season <- function(season, ids_to_save, release){
   cli::cli_alert_info("Start working on {.val {season}} season...")
   pbp <- nflreadr::load_pbp(season)
   in_season_ids <- ids_to_save[ids_to_save %in% pbp$game_id] |> unique()
@@ -51,9 +51,11 @@ save_season <- function(season, ids_to_save){
     save_chart(home, in_season_id, "home")
   }, pbp = pbp)
 
-  upload_files <- list.files("auto", pattern = "*.png", full.names = TRUE)
-  drivecharts_upload(upload_files)
-  file.remove(upload_files)
+  if(isTRUE(release)){
+    upload_files <- list.files("auto", pattern = "*.png", full.names = TRUE)
+    drivecharts_upload(upload_files)
+    file.remove(upload_files)
+  }
 }
 
 save_chart <- function(obj, game_id, type = c("overall", "home", "away")){
@@ -83,3 +85,21 @@ drivecharts_upload <- function(files, tag = "drivecharts", ...){
 
 
 save_new_games()
+
+
+# For manual updates of the saved_games file, if necessary
+get_released_games <- function(){
+  l <- piggyback::pb_list(repo = "nflverse/nflverse-drivecharts", tag = "drivecharts")
+
+  l |>
+    dplyr::mutate(
+      file_name = stringr::str_remove(file_name, "_away.png|_home.png|_overall.png")
+    ) |>
+    dplyr::count(game_id = file_name) |>
+    dplyr::filter(n == 3) |>
+    dplyr::select(game_id) |>
+    dplyr::arrange(game_id)
+}
+
+# new_saved_games <- get_released_games()
+# write.csv(new_saved_games, "auto/saved_games.csv", row.names = FALSE)
