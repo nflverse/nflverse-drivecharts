@@ -146,29 +146,15 @@ ggdrive <- function(pbp,
     )
 
   home_team <- unique(one_g$home_team)
-  home_col <- one_g |>
-    dplyr::filter(posteam == home_team) |>
-    dplyr::distinct(team_color) |>
-    dplyr::pull(team_color)
   away_team <- unique(one_g$away_team)
-  away_col <- one_g |>
-    dplyr::filter(posteam == away_team) |>
-    dplyr::distinct(team_color) |>
-    dplyr::pull(team_color)
-
-  if(color_diff(home_col, away_col) < 100){
-    one_g <- one_g |>
-      dplyr::mutate(
-        team_color = dplyr::case_when(
-          posteam == away_team ~ team_color2,
-          TRUE ~ team_color
-        )
+  best_colors <- resolve_team_colors(away_team = away_team, home_team = home_team)
+  one_g <- one_g |>
+    dplyr::mutate(
+      team_color = dplyr::case_when(
+        posteam == away_team ~ best_colors$away,
+        TRUE ~ best_colors$home
       )
-    away_col <- one_g |>
-      dplyr::filter(posteam == away_team) |>
-      dplyr::distinct(team_color2) |>
-      dplyr::pull(team_color2)
-  }
+    )
 
   endzone <- data.frame(
     x = c(5, 115),
@@ -374,13 +360,13 @@ ggdrive <- function(pbp,
   }
 
   if(isTRUE(with_score_plot)){
-    home_alpha <- ifelse(type == "away", 0.1, 1)
-    away_alpha <- ifelse(type == "home", 0.1, 1)
+    home_alpha <- ifelse(type == "away", 0.3, 1)
+    away_alpha <- ifelse(type == "home", 0.3, 1)
     p <- p +
-      ggplot2::geom_path(data = scores, ggplot2::aes(x = away_score/3 + 125, y = y), color = away_col, alpha = away_alpha) +
-      ggplot2::geom_text(data = scores, ggplot2::aes(x = away_score/3 + 125, y = y, label = away_score_lab), color = away_col, hjust = 0, size = 2, nudge_x = 1, alpha = away_alpha) +
-      ggplot2::geom_path(data = scores, ggplot2::aes(x = home_score/3 + 125, y = y), color = home_col, alpha = home_alpha) +
-      ggplot2::geom_text(data = scores, ggplot2::aes(x = home_score/3 + 125, y = y, label = home_score_lab), color = home_col, hjust = 0, size = 2, nudge_x = 1, alpha = home_alpha)
+      ggplot2::geom_path(data = scores, ggplot2::aes(x = away_score/3 + 125, y = y), color = best_colors$away, alpha = away_alpha) +
+      ggplot2::geom_text(data = scores, ggplot2::aes(x = away_score/3 + 125, y = y, label = away_score_lab), color = best_colors$away, hjust = 0, size = 2, nudge_x = 1, alpha = away_alpha) +
+      ggplot2::geom_path(data = scores, ggplot2::aes(x = home_score/3 + 125, y = y), color = best_colors$home, alpha = home_alpha) +
+      ggplot2::geom_text(data = scores, ggplot2::aes(x = home_score/3 + 125, y = y, label = home_score_lab), color = best_colors$home, hjust = 0, size = 2, nudge_x = 1, alpha = home_alpha)
   }
 
   p

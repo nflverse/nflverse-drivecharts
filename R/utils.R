@@ -24,3 +24,30 @@ icon_from_desc <- function(desc){
     TRUE ~ NA_character_
   )
 }
+
+resolve_team_colors <- function(away_team,
+                                home_team,
+                                ...,
+                                limit = 150){
+  teams <- nflreadr::load_teams(current = FALSE)
+  home_colors <- teams |>
+    dplyr::filter(team_abbr == home_team) |>
+    dplyr::select(tidyselect::contains("color")) |>
+    dplyr::select(team_color, team_color2) |>
+    t() |>
+    as.vector()
+  away_colors <- teams |>
+    dplyr::filter(team_abbr == away_team) |>
+    dplyr::select(tidyselect::contains("color")) |>
+    dplyr::select(team_color, team_color2) |>
+    t() |>
+    as.vector()
+  colors <- tidyr::expand_grid(home = home_colors, away = away_colors) |>
+    dplyr::mutate(
+      diff = purrr::map2_int(home, away, color_diff)
+    )
+  best_comb <- colors |>
+    dplyr::filter(diff >= limit) |>
+    dplyr::slice_head(n = 1)
+  best_comb
+}
