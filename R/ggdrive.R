@@ -4,6 +4,7 @@
 #' @param type One of "all", "away", "home". Decides what type of chart to build
 #' @param with_score_plot Either `TRUE` or `FALSE`. Choose to add scores to the plot.
 #' @param home_reverse Reverse direction of home team for chart `type` "home"
+#' @param mark_redzone Either `TRUE` or `FALSE`. Choose to highlight the red zone.
 #'
 #' @import ggplot2
 #' @import dplyr
@@ -21,7 +22,8 @@
 ggdrive <- function(pbp,
                     type = c("all", "away", "home"),
                     with_score_plot = FALSE,
-                    home_reverse = TRUE){
+                    home_reverse = TRUE,
+                    mark_redzone = TRUE){
 
   type <- rlang::arg_match(type)
 
@@ -210,6 +212,19 @@ ggdrive <- function(pbp,
     ko_ret_td <- ko_ret_td |> dplyr::mutate_at(rev_vars, function(x) 120L - x)
     plays <- plays |> dplyr::mutate_at(c("yard_abs"), function(x) 120L - x)
     endzone$team_abbr <- rev(endzone$team_abbr)
+  }
+
+  if (isTRUE(mark_redzone)){
+    pitch <- pitch +
+      ggplot2::annotate(
+        "tile",
+        x = c(20, 100),
+        y = 53.33/2,
+        width = 20,
+        height = 53.33,
+        fill = "red",
+        alpha = 0.1
+      )
   }
 
   p <- pitch +

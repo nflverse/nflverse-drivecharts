@@ -8,7 +8,8 @@ ggdrive(
   pbp,
   type = c("all", "away", "home"),
   with_score_plot = FALSE,
-  home_reverse = TRUE
+  home_reverse = TRUE,
+  mark_redzone = TRUE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ ggdrive(
 \item{with_score_plot}{Either \code{TRUE} or \code{FALSE}. Choose to add scores to the plot.}
 
 \item{home_reverse}{Reverse direction of home team for chart \code{type} "home"}
+
+\item{mark_redzone}{Either \code{TRUE} or \code{FALSE}. Choose to highlight the red zone.}
 }
 \value{
 A ggplot2 object
