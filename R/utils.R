@@ -51,3 +51,10 @@ resolve_team_colors <- function(away_team,
     dplyr::slice_head(n = 1)
   best_comb
 }
+
+endzone_color <- function(team){
+  t <- nflreadr::load_teams(current = FALSE)
+  t |>
+    dplyr::filter(team_abbr == team) |>
+    dplyr::pull(team_color)
+}
