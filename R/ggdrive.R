@@ -214,17 +214,42 @@ ggdrive <- function(pbp,
     endzone$team_abbr <- rev(endzone$team_abbr)
   }
 
+  # add red zone coloring
   if (isTRUE(mark_redzone)){
-    pitch <- pitch +
-      ggplot2::annotate(
-        "tile",
-        x = c(20, 100),
-        y = 53.33/2,
-        width = 20,
-        height = 53.33,
-        fill = "red",
-        alpha = 0.1
-      )
+    if (type == "all"){
+      pitch <- pitch +
+        ggplot2::annotate(
+          "tile",
+          x = c(20, 100),
+          y = 53.33/2,
+          width = 20,
+          height = 53.33,
+          fill = "red",
+          alpha = 0.1
+        )
+    } else if (type == "home" && isFALSE(home_reverse)){
+      pitch <- pitch +
+        ggplot2::annotate(
+          "tile",
+          x = 20,
+          y = 53.33/2,
+          width = 20,
+          height = 53.33,
+          fill = "red",
+          alpha = 0.1
+        )
+    } else {
+      pitch <- pitch +
+        ggplot2::annotate(
+          "tile",
+          x = 100,
+          y = 53.33/2,
+          width = 20,
+          height = 53.33,
+          fill = "red",
+          alpha = 0.1
+        )
+    }
   }
 
   p <- pitch +
