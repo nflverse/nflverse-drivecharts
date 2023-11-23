@@ -240,6 +240,16 @@ ggdrive <- function(pbp,
       width = 10,
       height = 53.33
     ) +
+    # Draw goal lines on top of colored end zones
+    # goal lines are 8 inches. I round to 0.25 yards
+    ggplot2::annotate(
+      ggplot2::GeomTile,
+      x = c(10 - 0.25/2, 110 + 0.25/2),
+      y = 53.33/2,
+      fill = "white",
+      width = 0.25,
+      height = 53.33
+    ) +
     ggplot2::scale_fill_identity() +
     ggplot2::annotate(
       ggplot2::GeomSegment,
@@ -253,7 +263,7 @@ ggdrive <- function(pbp,
       y = half$y,
       label = half$half_lab,
       # family = "Roboto Condensed",
-      hjust = 1, vjust = 0.5,
+      hjust = 0, vjust = 0.5,
       size = 2
     ) +
     ggplot2::annotate(
@@ -268,16 +278,10 @@ ggdrive <- function(pbp,
     # WORDMARKS in ENDZONES
     nflplotR::geom_from_path(
       data = endzone,
-      ggplot2::aes(x = x, y = y, path = system.file(paste0(team_abbr, ".png"), package = "drivecharts"), angle = angle),
+      ggplot2::aes(x = x, y = y, path = endzone_wordmark(team_abbr), angle = angle),
       height = 0.1,
       alpha = 0.9
     ) +
-    # nflplotR::geom_nfl_wordmarks(
-    #   data = endzone,
-    #   ggplot2::aes(x = x, y = y, team_abbr = team_abbr, angle = angle),
-    #   height = 0.1,
-    #   alpha = 1.0
-    # ) +
     # add COMET TAILS. Since we are using alpha, each geom_link needs a separate
     # number of segments `n` which is why we are looping over all drives
     lapply(one_g$drive_number, function(x){
