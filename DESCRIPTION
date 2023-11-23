@@ -1,6 +1,6 @@
 Package: drivecharts
 Title: Create 'nflverse' Drive Charts
-Version: 0.0.4
+Version: 0.0.5
 Authors@R: 
     person("Sebastian", "Carl", , "mrcaseb@gmail.com", role = c("aut", "cre"))
 Description: Creates drive charts from nflverse pbp using ggplot2.
