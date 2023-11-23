@@ -58,3 +58,7 @@ endzone_color <- function(team){
     dplyr::filter(team_abbr == team) |>
     dplyr::pull(team_color)
 }
+
+endzone_wordmark <- function(team){
+  system.file(paste0(team, ".png"), package = "drivecharts")
+}
