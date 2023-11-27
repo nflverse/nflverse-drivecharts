@@ -213,6 +213,7 @@ ggdrive <- function(pbp,
     ko_ret_td <- ko_ret_td |> dplyr::mutate_at(rev_vars, function(x) 120L - x)
     plays <- plays |> dplyr::mutate_at(c("yard_abs"), function(x) 120L - x)
     endzone$team_abbr <- rev(endzone$team_abbr)
+    endzone$color <- rev(endzone$color)
   }
 
   # add red zone coloring
