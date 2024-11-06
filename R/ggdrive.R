@@ -417,9 +417,9 @@ ggdrive <- function(pbp,
     home_alpha <- ifelse(type == "away", 0.3, 1)
     away_alpha <- ifelse(type == "home", 0.3, 1)
     p <- p +
-      ggplot2::geom_path(data = scores, ggplot2::aes(x = away_score/3 + 125, y = y), color = best_colors$away, alpha = away_alpha) +
+      ggplot2::geom_step(data = scores, ggplot2::aes(x = away_score/3 + 125, y = y), color = best_colors$away, alpha = away_alpha, direction = "vh") +
       ggplot2::geom_text(data = scores, ggplot2::aes(x = away_score/3 + 125, y = y, label = away_score_lab), color = best_colors$away, hjust = 0, size = 2, nudge_x = 1, alpha = away_alpha) +
-      ggplot2::geom_path(data = scores, ggplot2::aes(x = home_score/3 + 125, y = y), color = best_colors$home, alpha = home_alpha) +
+      ggplot2::geom_step(data = scores, ggplot2::aes(x = home_score/3 + 125, y = y), color = best_colors$home, alpha = home_alpha, direction = "vh") +
       ggplot2::geom_text(data = scores, ggplot2::aes(x = home_score/3 + 125, y = y, label = home_score_lab), color = best_colors$home, hjust = 0, size = 2, nudge_x = 1, alpha = home_alpha)
   }
 
