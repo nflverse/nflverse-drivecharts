@@ -54,6 +54,9 @@ resolve_team_colors <- function(away_team,
 
 endzone_color <- function(team){
   t <- nflreadr::load_teams(current = FALSE)
+  if (team == "TEN") {
+    return("transparent")
+  }
   t |>
     dplyr::filter(team_abbr == team) |>
     dplyr::pull(team_color)

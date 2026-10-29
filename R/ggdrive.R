@@ -23,7 +23,8 @@ ggdrive <- function(pbp,
                     type = c("all", "away", "home"),
                     with_score_plot = FALSE,
                     home_reverse = TRUE,
-                    mark_redzone = TRUE){
+                    mark_redzone = TRUE,
+                    text_size = unit(3, "points")){
 
   type <- rlang::arg_match(type)
 
@@ -280,7 +281,7 @@ ggdrive <- function(pbp,
     ggplot2::annotate(
       ggplot2::GeomSegment,
       x = 10, xend = 110,
-      y = half$y, yend = half$y, size = 0.5,
+      y = half$y, yend = half$y, linewidth = 0.5,
       alpha = 0.4, linetype = "dotted"
     ) +
     ggplot2::annotate(
@@ -290,17 +291,23 @@ ggdrive <- function(pbp,
       label = half$half_lab,
       # family = "Roboto Condensed",
       hjust = 0, vjust = 0.5,
-      size = 2
-    ) +
-    ggplot2::annotate(
-      ggplot2::GeomText,
-      x = ko_ret_td$start_abs,
-      y = ko_ret_td$y,
-      label = ko_ret_td$lab,
-      # family = "Roboto Condensed",
-      hjust = ko_ret_td$lab_hjust, vjust = 0.5,
-      size = 2
-    ) +
+      size = text_size
+    ) + {
+      if (nrow(ko_ret_td) == 0){
+        NULL
+      } else {
+        ggplot2::annotate(
+          ggplot2::GeomText,
+          x = ko_ret_td$start_abs,
+          y = ko_ret_td$y,
+          label = ko_ret_td$lab,
+          # family = "Roboto Condensed",
+          hjust = ko_ret_td$lab_hjust,
+          vjust = 0.5,
+          size = text_size
+        )
+      }
+    } +
     # WORDMARKS in ENDZONES
     nflplotR::geom_from_path(
       data = endzone,
@@ -316,7 +323,7 @@ ggdrive <- function(pbp,
         y = y,
         xend = end_abs,
         yend = y,
-        size = ggplot2::after_stat(index),
+        linewidth = ggplot2::after_stat(index),
         color = team_color,
         alpha = dplyr::case_when(scoring_drive == 1 ~ 1, TRUE ~ 0.1)# non-scoring drives with lower alpha
       ),
@@ -337,7 +344,7 @@ ggdrive <- function(pbp,
       ggrepel::geom_text_repel(
         data = plays,
         ggplot2::aes(x = yard_abs, y = y, label = play_count, color = count_color, bg.color = count_bg),
-        size = 2, box.padding = 0, nudge_y = -1.75, direction = "x", bg.r = 0.10
+        size = text_size, box.padding = 0, nudge_y = -1.75, direction = "x", bg.r = 0.10
       )
   }
 
@@ -349,13 +356,24 @@ ggdrive <- function(pbp,
     ggplot2::aes(x = grob_x, y = y, path = icon), width = 0.02
   ) +
     ggplot2::scale_color_identity() +
-    ggplot2::scale_size(range = c(.01, 3.5), guide = "none") +
+    ggplot2::scale_linewidth(range = c(.01, 3.5), guide = "none") +
     ggplot2::scale_alpha_identity() +
     ggplot2::theme(
       plot.margin = ggplot2::margin(-1, -0.5, -0.5, -0.5, "cm"),
       plot.caption = ggplot2::element_blank(),
     ) +
     NULL
+
+  # add score plot layers here so drive labels are plotted above the score plot
+  if(isTRUE(with_score_plot)){
+    home_alpha <- ifelse(type == "away", 0.3, 1)
+    away_alpha <- ifelse(type == "home", 0.3, 1)
+    p <- p +
+      ggplot2::geom_step(data = scores, ggplot2::aes(x = away_score/3 + 125, y = y), color = best_colors$away, alpha = away_alpha, direction = "vh") +
+      ggplot2::geom_text(data = scores, ggplot2::aes(x = away_score/3 + 125, y = y, label = away_score_lab), color = best_colors$away, hjust = 0, size = text_size, nudge_x = 1, alpha = away_alpha) +
+      ggplot2::geom_step(data = scores, ggplot2::aes(x = home_score/3 + 125, y = y), color = best_colors$home, alpha = home_alpha, direction = "vh") +
+      ggplot2::geom_text(data = scores, ggplot2::aes(x = home_score/3 + 125, y = y, label = home_score_lab), color = best_colors$home, hjust = 0, size = text_size, nudge_x = 1, alpha = home_alpha)
+  }
 
   # add labels with some drive stats
   if (type == "all"){
@@ -367,7 +385,7 @@ ggdrive <- function(pbp,
         label = label,
         color = team_color,
         alpha = 0.9,
-      ), size = 2, nudge_x = -1, label.padding = unit(0.10, "lines")
+      ), size = text_size, nudge_x = -1, label.padding = unit(0.10, "lines")
       ) +
       ggplot2::geom_label(data = one_g |> dplyr::filter(posteam == away_team), ggplot2::aes(
         x = label_x,
@@ -376,7 +394,7 @@ ggdrive <- function(pbp,
         label = label,
         color = team_color,
         alpha = 0.9,
-      ), size = 2, nudge_x = 1, label.padding = unit(0.10, "lines")
+      ), size = text_size, nudge_x = 1, label.padding = unit(0.10, "lines")
       )
   } else if (type == "home" && isFALSE(home_reverse)){
     p <- p +
@@ -387,7 +405,7 @@ ggdrive <- function(pbp,
         label = label,
         color = team_color,
         alpha = 0.9,
-      ), size = 2, nudge_x = -1, label.padding = unit(0.10, "lines")
+      ), size = text_size, nudge_x = -1, label.padding = unit(0.10, "lines")
       )
   } else if (type == "home" && isTRUE(home_reverse)){
     p <- p +
@@ -398,7 +416,7 @@ ggdrive <- function(pbp,
         label = label,
         color = team_color,
         alpha = 0.9,
-      ), size = 2, nudge_x = 1, label.padding = unit(0.10, "lines")
+      ), size = text_size, nudge_x = 1, label.padding = unit(0.10, "lines")
       )
   } else if (type == "away"){
     p <- p +
@@ -409,18 +427,8 @@ ggdrive <- function(pbp,
         label = label,
         color = team_color,
         alpha = 0.9,
-      ), size = 2, nudge_x = 1, label.padding = unit(0.10, "lines")
+      ), size = text_size, nudge_x = 1, label.padding = unit(0.10, "lines")
       )
-  }
-
-  if(isTRUE(with_score_plot)){
-    home_alpha <- ifelse(type == "away", 0.3, 1)
-    away_alpha <- ifelse(type == "home", 0.3, 1)
-    p <- p +
-      ggplot2::geom_step(data = scores, ggplot2::aes(x = away_score/3 + 125, y = y), color = best_colors$away, alpha = away_alpha, direction = "vh") +
-      ggplot2::geom_text(data = scores, ggplot2::aes(x = away_score/3 + 125, y = y, label = away_score_lab), color = best_colors$away, hjust = 0, size = 2, nudge_x = 1, alpha = away_alpha) +
-      ggplot2::geom_step(data = scores, ggplot2::aes(x = home_score/3 + 125, y = y), color = best_colors$home, alpha = home_alpha, direction = "vh") +
-      ggplot2::geom_text(data = scores, ggplot2::aes(x = home_score/3 + 125, y = y, label = home_score_lab), color = best_colors$home, hjust = 0, size = 2, nudge_x = 1, alpha = home_alpha)
   }
 
   p

@@ -9,7 +9,8 @@ ggdrive(
   type = c("all", "away", "home"),
   with_score_plot = FALSE,
   home_reverse = TRUE,
-  mark_redzone = TRUE
+  mark_redzone = TRUE,
+  text_size = unit(3, "points")
 )
 }
 \arguments{
